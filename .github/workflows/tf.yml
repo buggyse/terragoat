@@ -4,7 +4,9 @@ name: Tfsec Checks on Terraform Code
 on:
   pull_request:
       
-permissions: read-all
+permissions: 
+      contents: read
+      pull-requests: write
 
 jobs:
   tfsec-checks:
@@ -20,8 +22,7 @@ jobs:
         uses: aquasecurity/tfsec-action@v1.0.3
 
 # Tfsec - PR Commentor
-
       - name: tfsec
-        uses: tfsec/tfsec-pr-commenter-action@main
+        uses: aquasecurity/tfsec-pr-commenter-action@v1.3.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
