@@ -1,28 +1,23 @@
-name: Tfsec Checks on Terraform Code
-
-# Only trigger, when the build workflow succeeded
+name: tfsec-pr-commenter
 on:
   pull_request:
-      
-permissions: 
+jobs:
+  tfsec:
+    name: tfsec PR commenter
+    runs-on: ubuntu-latest
+
+    permissions:
       contents: read
       pull-requests: write
 
-jobs:
-  tfsec-checks:
-      runs-on: ubuntu-latest
-      steps:
-    
-# Checkout Repository
-      - name : Check out Git Repository
-        uses: actions/checkout@v2
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@master
+      - name: tfsec
+        uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
+        with:
+          github_token: ${{ github.token }}
       
 # Tfsec - Security scanner for your Terraform code
       - name: Run Tfsec
         uses: aquasecurity/tfsec-action@v1.0.3
-
-# Tfsec - PR Commentor
-      - name: tfsec
-        uses: aquasecurity/tfsec-pr-commenter-action@v1.3.1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
