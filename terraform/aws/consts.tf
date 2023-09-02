@@ -16,7 +16,6 @@ locals {
 }
 
 
-
 variable "profile" {
   default = "default"
 }
