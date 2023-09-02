@@ -18,3 +18,10 @@ jobs:
 # Tfsec - Security scanner for your Terraform code
       - name: Run Tfsec
         uses: aquasecurity/tfsec-action@v1.0.3
+
+# Tfsec - PR Commentor
+
+      - name: tfsec
+        uses: tfsec/tfsec-pr-commenter-action@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
