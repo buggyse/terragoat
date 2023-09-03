@@ -1,6 +1,11 @@
-name: tfsec-pr-commenter
+name: tfsec PR Commenter
+
 on:
   pull_request:
+    types:
+      - opened
+      - synchronize
+
 jobs:
   tfsec:
     name: tfsec PR commenter
@@ -11,22 +16,41 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Clone repo
-        uses: actions/checkout@master   
-# Tfsec - Security scanner for your Terraform code
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
       - name: Run Tfsec
         uses: aquasecurity/tfsec-action@v1.0.3
 
-      - name: Check tfsec results
-        run: echo "TFSEC_RESULT=${{ steps.tfsec.outputs.exitcode }}" >> $GITHUB_ENV
-
-      - name: Send Slack alert
-        if: ${{ env.TFSEC_RESULT == '1' }}
+      - name: Get tfsec results
+        id: tfsec-results
         run: |
-         curl -X POST -H "Content-type: application/json" --data '{
-          "text": "Terraform security issues found in the repository. Check the workflow logs for details: '"$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"',
-          "channel": "#general",
-          "username": "GitHub Actions"
-         }' $SLACK_WEBHOOK_URL
-    env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          tfsec_result=$(curl -s -X POST \
+            -H "Content-type: application/json" \
+            --data '{
+              "repository": "'"$GITHUB_REPOSITORY"'",
+              "pull_request_number": "'"$GITHUB_EVENT_NUMBER"'",
+              "tfsec_results": "'"$(cat tfsec_results.json)"'"
+            }' \
+            $SLACK_WEBHOOK_URL)
+          echo "tfsec_result=$tfsec_result" >> $GITHUB_ENV
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Comment on PR
+        if: steps.tfsec-results.outputs.tfsec_result == 'success'
+        run: |
+          curl -X POST -H "Content-type: application/json" --data '{
+            "text": "Terraform security scan passed for this PR. No issues found.",
+            "channel": "#tfsec-pr-commenter",
+            "username": "GitHub Actions"
+          }' $SLACK_WEBHOOK_URL
+
+      - name: Comment on PR with tfsec results
+        if: steps.tfsec-results.outputs.tfsec_result != 'success'
+        run: |
+          curl -X POST -H "Content-type: application/json" --data '{
+            "text": "Terraform security issues found in this PR. Check the tfsec results below:\n```'"$(cat tfsec_results.json)"'```",
+            "channel": "#general",
+            "username": "GitHub Actions"
+          }' $SLACK_WEBHOOK_URL
