@@ -13,9 +13,8 @@ jobs:
     steps:
       - name: Clone repo
         uses: actions/checkout@master
-      - name: tfsec
-        uses: aquasecurity/tfsec-pr-commenter-action@main
+      - uses: aquasecurity/tfsec-pr-commenter-action@main
         with:
-          working_directory: ''
-          github_token: ${{ github.token }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tfsec_args: --force-all-dirs
         
