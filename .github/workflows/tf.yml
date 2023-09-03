@@ -42,7 +42,7 @@ jobs:
         run: |
           curl -X POST -H "Content-type: application/json" --data '{
             "text": "Terraform security scan passed for this PR. No issues found.",
-            "channel": "#tfsec-pr-commenter",
+            "channel": "#general",
             "username": "GitHub Actions"
           }' $SLACK_WEBHOOK_URL
 
