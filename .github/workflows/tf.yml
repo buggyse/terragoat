@@ -22,35 +22,13 @@ jobs:
       - name: Run Tfsec
         uses: aquasecurity/tfsec-action@v1.0.3
 
-      - name: Get tfsec results
-        id: tfsec-results
+      - name: Send Slack Alerts
+        if: ${{ success() }}
         run: |
-          tfsec_result=$(curl -s -X POST \
-            -H "Content-type: application/json" \
-            --data '{
-              "repository": "'"$GITHUB_REPOSITORY"'",
-              "pull_request_number": "'"$GITHUB_EVENT_NUMBER"'",
-              "tfsec_results": "'"$(cat tfsec_results.json)"'"
-            }' \
-            $SLACK_WEBHOOK_URL)
-          echo "tfsec_result=$tfsec_result" >> $GITHUB_ENV
+          curl -X POST -H "Content-type: application/json" --data '{
+            "text": "Terraform security scan has completed successfully for this pull request.",
+            "channel": "#general", # Replace with your Slack channel
+            "username": "GitHub Actions"
+          }' $SLACK_WEBHOOK_URL
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-      - name: Comment on PR
-        if: steps.tfsec-results.outputs.tfsec_result == 'success'
-        run: |
-          curl -X POST -H "Content-type: application/json" --data '{
-            "text": "Terraform security scan passed for this PR. No issues found.",
-            "channel": "#general",
-            "username": "GitHub Actions"
-          }' $SLACK_WEBHOOK_URL
-
-      - name: Comment on PR with tfsec results
-        if: steps.tfsec-results.outputs.tfsec_result != 'success'
-        run: |
-          curl -X POST -H "Content-type: application/json" --data '{
-            "text": "Terraform security issues found in this PR. Check the tfsec results below:\n```'"$(cat tfsec_results.json)"'```",
-            "channel": "#general",
-            "username": "GitHub Actions"
-          }' $SLACK_WEBHOOK_URL
