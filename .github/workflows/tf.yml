@@ -1,21 +1,17 @@
-name: tfsec PR Commenter
+name: Tfsec Checks on Terraform Code
 
 on:
   pull_request:
-    types:
-      - opened
-      - synchronize
+
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
-  tfsec:
-    name: tfsec PR commenter
+  tfsec-checks:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      pull-requests: write
-
     steps:
+    
       - name: Checkout repo
         uses: actions/checkout@v2
 
@@ -23,7 +19,7 @@ jobs:
         uses: aquasecurity/tfsec-action@v1.0.3
 
       - name: Send Slack Alerts
-        if: ${{ success() }}
+        if: failure()
         run: |
           curl -X POST -H "Content-type: application/json" --data '{
             "text": "Terraform security scan has completed successfully for this pull request.",
