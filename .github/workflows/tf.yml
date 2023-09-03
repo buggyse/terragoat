@@ -18,9 +18,16 @@ jobs:
 
       - name: Run Tfsec
         uses: aquasecurity/tfsec-action@v1.0.3
-
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v1
         with:
-          # Path to SARIF file relative to the root of the repository
-          sarif_file: tfsec.sarif
+         tfsec_formats: json
+         
+      - name: Send Slack Alerts on Failure
+        if: failure()
+        run: |
+          curl -X POST -H "Content-type: application/json" --data '{
+            "text": "Terraform security scan failed for this pull request. Check the workflow logs for details: '"$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"',
+            "channel": "#general", # Replace with your Slack channel
+            "username": "GitHub Actions"
+          }' $SLACK_WEBHOOK_URL
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
