@@ -1,0 +1,25 @@
+on: [push]
+
+jobs:
+  terrascan_job:
+    runs-on: ubuntu-latest
+    name: terrascan-action
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Run Terrascan
+      id: terrascan
+      uses: tenable/terrascan-action@main
+      with:
+        iac_type: 'terraform'
+        iac_version: 'v14'
+        policy_type: 'aws'
+        only_warn: true
+        #sarif_upload: true
+        #non_recursive:
+        #iac_dir:
+        #policy_path:
+        #skip_rules:
+        #config_path:
+        webhook_url: https://hooks.slack.com/services/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
+        #webhook_token:
