@@ -12,12 +12,21 @@ jobs:
 
     steps:
       - name: Clone repo
-        uses: actions/checkout@master
-      - name: tfsec
-        uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
-        with:
-          github_token: ${{ github.token }}
-      
+        uses: actions/checkout@master   
 # Tfsec - Security scanner for your Terraform code
       - name: Run Tfsec
         uses: aquasecurity/tfsec-action@v1.0.3
+
+      - name: Check tfsec results
+        run: echo "TFSEC_RESULT=${{ steps.tfsec.outputs.exitcode }}" >> $GITHUB_ENV
+
+      - name: Send Slack alert
+        if: ${{ env.TFSEC_RESULT == '1' }}
+        run: |
+         curl -X POST -H "Content-type: application/json" --data '{
+          "text": "Terraform security issues found in the repository. Check the workflow logs for details: '"$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"',
+          "channel": "#general",
+          "username": "GitHub Actions"
+         }' $SLACK_WEBHOOK_URL
+    env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
