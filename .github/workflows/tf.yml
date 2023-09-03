@@ -21,11 +21,11 @@ jobs:
         with:
          tfsec_formats: json
          
-      - name: Send Slack Alerts on Failure
-        if: failure()
+      - name: Send Slack Alerts
+        if: ${{ success() }}
         run: |
           curl -X POST -H "Content-type: application/json" --data '{
-            "text": "Terraform security scan failed for this pull request. Check the workflow logs for details: '"$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"',
+            "text": "Terraform security scan has been completed successfully for this pull request.",
             "channel": "#general", # Replace with your Slack channel
             "username": "GitHub Actions"
           }' $SLACK_WEBHOOK_URL
