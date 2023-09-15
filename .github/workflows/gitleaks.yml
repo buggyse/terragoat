@@ -17,3 +17,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}}
+
+      - name: Send Slack Notification
+        if: ${{ failure() }}
+        run: |
+          SLACK_WEBHOOK_URL="https://hooks.slack.com/services/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"
+          GITLEAKS_SCAN_RESULT="${{ steps.gitleaks-scan.outputs.stdout }}"
+          MESSAGE="Gitleaks Scan Failed. Summary:\n${GITLEAKS_SCAN_RESULT}"
+
+          curl -X POST -H "Content-type: application/json" --data '{
+              "text": "'"${MESSAGE}"'"
+          }' "$SLACK_WEBHOOK_URL"
+
