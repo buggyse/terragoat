@@ -17,26 +17,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}}
-
-      - name: Generate Gitleaks Markdown Summary
-        id: gitleaks-summary
-        run: |
-          GITLEAKS_OUTPUT="${{ steps.scan.outputs.gitleaks_output }}"
-          echo "## Gitleaks Scan Summary" > gitleaks_summary.md
-          echo "${GITLEAKS_OUTPUT}" >> gitleaks_summary.md
-
-      - name: Upload Gitleaks Summary
-        uses: actions/upload-artifact@v2
-        with:
-          name: gitleaks-summary
-          path: gitleaks_summary.md
-
-      - name: Send Slack Notification
-        if: ${{ failure() }}
-        run: |
-          SLACK_WEBHOOK_URL="https://hooks.slack.com/services/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"
-          GITLEAKS_SUMMARY=$(cat gitleaks_summary.md)
-
-          curl -X POST -H "Content-type: application/json" --data '{
-              "text": "Gitleaks scan failed. See the [Gitleaks Scan Summary](artifact://gitleaks-summary.md) for details:\n\n'"${GITLEAKS_SUMMARY}"'"
-          }' "$SLACK_WEBHOOK_URL"
