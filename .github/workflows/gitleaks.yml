@@ -5,7 +5,7 @@ on:
       - main
   workflow_dispatch:
   schedule:
-    - cron: "0 0/2 * 1/1 * ? *" # run every 1 minute
+    - cron: '*/5 * * * *'  # Run every 5 minutes
 
 jobs:
   scan:
