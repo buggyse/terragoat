@@ -17,3 +17,30 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}}
+
+      - name: Get GitHub Actions Markdown Summary
+        id: get_summary
+        run: |
+          # Replace 'Your Workflow Name' with the name of your workflow.
+          WORKFLOW_NAME="gitleaks"
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+          SUMMARY_URL="https://api.github.com/repos/${{ github.repository }}/actions/runs/${RUN_ID}/logs?per_page=1&access_token=${GITHUB_TOKEN}"
+
+          SUMMARY=$(curl -s -H "Accept: application/vnd.github.v3.raw" "$SUMMARY_URL")
+          echo "::set-output name=summary::$SUMMARY"
+
+      - name: Send Summary to Slack
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          SUMMARY="${{ steps.get_summary.outputs.summary }}"
+
+          curl -X POST -H "Content-type: application/json" --data '{
+              "text": "GitHub Actions Summary",
+              "attachments": [
+                  {
+                      "text": "'"${SUMMARY}"'"
+                  }
+              ]
+          }' "$SLACK_WEBHOOK_URL"
