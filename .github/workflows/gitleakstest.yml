@@ -1,8 +1,10 @@
 name: Gitleaks Scan for Private Repositories
-
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
-
+  
 jobs:
   scan:
     runs-on: ubuntu-latest
