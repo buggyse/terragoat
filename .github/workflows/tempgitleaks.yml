@@ -24,7 +24,7 @@ jobs:
           PER_PAGE=100
           while true; do
             REPO_LIST=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-              "https://api.github.com/orgs/$ORG_NAME/repos?page=$PAGE&per_page=$PER_PAGE" | jq -r '.[].html_url')
+              "https://api.github.com/orgs/$ORG_NAME/repos?page=$PAGE&per_page=$PER_PAGE" | jq -r '.[] | .html_url')
             if [ -z "$REPO_LIST" ]; then
               break
             fi
