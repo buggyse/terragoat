@@ -17,3 +17,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}}
+
+      - name: Clone and Scan Repository 1
+        env:
+          REPO_URL: 'https://github.com/bughuntermarle/Sny-Code-Test'
+        run: |
+          git clone --depth 1 $REPO_URL
+          gitleaks --path=Sny-Code-Test --verbose
+          rm -rf Sny-Code-Test
