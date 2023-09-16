@@ -2,7 +2,7 @@ name: Gitleaks Scan for Organization Repositories
 
 on:
   workflow_dispatch:
-
+  
 jobs:
   scan:
     runs-on: ubuntu-latest
@@ -24,7 +24,7 @@ jobs:
           PER_PAGE=100
           while true; do
             REPO_LIST=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-              "https://api.github.com/orgs/$ORG_NAME/repos?page=$PAGE&per_page=$PER_PAGE" | jq -r '.[] | .html_url')
+              "https://api.github.com/orgs/$ORG_NAME/repos?page=$PAGE&per_page=$PER_PAGE" | jq -r '.[] | .clone_url')
             if [ -z "$REPO_LIST" ]; then
               break
             fi
@@ -37,7 +37,7 @@ jobs:
           while IFS= read -r repo_url; do
             repo_name=$(basename $repo_url)
             echo "Scanning repository: $repo_name"
-            git clone --depth 1 --quiet --single-branch --branch main "https://$GITHUB_ACTOR:$GITHUB_TOKEN@$repo_url" "repo-$repo_name"
+            git clone --depth 1 --quiet --single-branch --branch main "$repo_url" "repo-$repo_name"
             gitleaks --path="repo-$repo_name" --verbose
             rm -rf "repo-$repo_name"
           done < org_repo_list.txt
