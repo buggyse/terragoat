@@ -41,9 +41,11 @@ jobs:
       - name: Run Gitleaks Scan
         run: |
           while IFS= read -r repo_url; do
-            repo_name=$(basename "$repo_url")
-            echo "Scanning repository: $repo_name"
-            git clone --depth 1 --quiet --single-branch --branch main "$repo_url" "repo-$repo_name"
-            gitleaks --path="repo-$repo_name" --verbose
-            rm -rf "repo-$repo_name"
+            if [ -n "$repo_url" ]; then
+              repo_name=$(basename "$repo_url")
+              echo "Scanning repository: $repo_name"
+              git clone --depth 1 --quiet --single-branch --branch main "$repo_url" "repo-$repo_name"
+              gitleaks --path="repo-$repo_name" --verbose
+              rm -rf "repo-$repo_name"
+            fi
           done < org_repo_list.txt
