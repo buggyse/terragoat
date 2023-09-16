@@ -2,7 +2,7 @@ name: Gitleaks Scan for Organization Repositories
 
 on:
   workflow_dispatch:
-  
+
 jobs:
   scan:
     runs-on: ubuntu-latest
@@ -22,15 +22,18 @@ jobs:
           ORG_NAME="bughuntermarle"
           PAGE=1
           PER_PAGE=100
+          REPO_LIST=""
           while true; do
-            REPO_LIST=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-              "https://api.github.com/orgs/$ORG_NAME/repos?page=$PAGE&per_page=$PER_PAGE" | jq -r '.[] | .clone_url')
-            if [ -z "$REPO_LIST" ]; then
+            RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+              "https://api.github.com/orgs/$ORG_NAME/repos?page=$PAGE&per_page=$PER_PAGE")
+            REPO_URLS=$(echo "$RESPONSE" | jq -r '.[] | .clone_url')
+            if [ -z "$REPO_URLS" ]; then
               break
             fi
-            echo "$REPO_LIST" >> org_repo_list.txt
+            REPO_LIST="$REPO_LIST$REPO_URLS\n"
             PAGE=$((PAGE+1))
           done
+          echo -e "$REPO_LIST" > org_repo_list.txt
 
       - name: Run Gitleaks Scan
         run: |
