@@ -1,24 +1,16 @@
-name: Gitleaks Scan for Organization Repositories
-
+name: gitleaks
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
-  schedule:
-    - cron: '0 0 * * *'  # Schedule daily scans (adjust as needed)
 
 jobs:
   scan:
+    name: gitleaks
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: Install Gitleaks
-        run: |
-          wget https://github.com/zricethezav/gitleaks/releases/download/v8.18.0/gitleaks_8.18.0_linux_arm64.tar.gz
-          tar -zxvf gitleaks_8.18.0_linux_arm64.tar.gz
-          chmod +x gitleaks
-          mv gitleaks /usr/local/bin/
-
+      - uses: actions/checkout@v3
       - name: Get Organization Repositories
         run: |
           ORG_NAME="bughuntermarle"
@@ -38,14 +30,7 @@ jobs:
           done
           echo -e "$REPO_LIST" > org_repo_list.txt
 
-      - name: Run Gitleaks Scan
-        run: |
-          while IFS= read -r repo_url; do
-            if [ -n "$repo_url" ]; then
-              repo_name=$(basename "$repo_url")
-              echo "Scanning repository: $repo_name"
-              git clone --depth 1 --quiet --single-branch --branch main "$repo_url" "repo-$repo_name"
-              gitleaks --path="repo-$repo_name" --verbose
-              rm -rf "repo-$repo_name"
-            fi
-          done < org_repo_list.txt
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}}
