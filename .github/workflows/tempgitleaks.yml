@@ -2,6 +2,8 @@ name: Gitleaks Scan for Organization Repositories
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # Schedule daily scans (adjust as needed)
 
 jobs:
   scan:
@@ -26,7 +28,7 @@ jobs:
           while true; do
             RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
               "https://api.github.com/orgs/$ORG_NAME/repos?page=$PAGE&per_page=$PER_PAGE")
-            REPO_URLS=$(echo "$RESPONSE" | jq -r '.[] | .clone_url')
+            REPO_URLS=$(echo "$RESPONSE" | jq -r '.[].clone_url')
             if [ -z "$REPO_URLS" ]; then
               break
             fi
