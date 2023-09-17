@@ -17,18 +17,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}}
-          
-      - name: Send Job Summary to Slack
-        if: ${{ always() }}
-        uses: 8398a7/action-slack@v5
-        with:
-          status: ${{ job.status }}
-          text: |
-            *Job ${{ job.status }}*
-            Repository: ${{ github.repository }}
-            Workflow: ${{ github.workflow }}
-            Commit: ${{ github.sha }}
-            Job: ${{ job.job }}
-          username: GitHub Actions
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
