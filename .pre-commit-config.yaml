@@ -1,5 +1,7 @@
+# .pre-commit-config.yaml
 repos:
-  - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.16.1
+  - repo: https://github.com/danielorihuela/gitleaks
+    rev: fix/gitleaks-behaviour-on-pre-commit-run
     hooks:
       - id: gitleaks
+        args: [-p]
