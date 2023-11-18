@@ -42,7 +42,7 @@ resource "aws_lambda_function" "analysis_lambda" {
   environment {
     variables = {
       access_key = "AKIAIOSFODNN7EXAMPLE"
-      secret_key = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+      secret_key = "7CE556A3BC234CC1FF9E8A5C324C0BB70AA21B6D"
     }
   }
   tags = {
