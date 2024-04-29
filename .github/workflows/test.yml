@@ -1,9 +1,7 @@
 name: List Private Repositories
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   list-repos:
