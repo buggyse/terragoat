@@ -1,4 +1,4 @@
-name: List Organization Members
+name: List Private Repositories
 
 on:
   push:
@@ -6,15 +6,15 @@ on:
       - main
 
 jobs:
-  list-members:
+  list-repos:
     runs-on: ubuntu-latest
     steps:
-      - name: List Members
+      - name: List Repositories
         run: |
           TOKEN=$TOKEN
           ORG=bughuntermarle
           curl -s -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/orgs/$ORG/members
+            https://api.github.com/orgs/$ORG/repos?type=private
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
